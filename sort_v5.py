@@ -53,12 +53,19 @@ def process_archive(file_path, sorting_folder):
     except zipfile.BadZipFile:
         pass
 
+    # Оновлюємо категорію та шлях файлу
+    category = os.path.relpath(archive_folder, sorting_folder)
+    normalized_archive_name = normalize(archive_name)
+    new_archive_path = os.path.join(sorting_folder, "archives", normalized_archive_name)
+
+    # Перейменовуємо та переміщуємо архів
+    shutil.move(archive_folder, new_archive_path)
+
     # повертаємо створену папку для архіву
-    return archive_folder
+    return new_archive_path
 
 
-def process_file(folder_path, file_path, normalized_file_name):
-
+def process_file(folder_path, file_path):
     _, file_extension = os.path.splitext(file_path)
 
     # Визначаємо категорію за розширенням
@@ -73,29 +80,32 @@ def process_file(folder_path, file_path, normalized_file_name):
         category = 'audio'
     elif file_extension[1:].lower() in ('zip', 'gz', 'tar'):
         category = 'archives'
-
         # застосовуємо функцію для розпакування архіву і отримання шляху до створеної папки
         archive_folder = process_archive(file_path, folder_path)
-
         # оновлюємо категорію та шлях файлу
         category = os.path.relpath(archive_folder, folder_path)
+    else:
+        category = 'others'
 
     if os.path.exists(file_path) and category is not None:
         # Перейменовуємо та переміщуємо файл
         category_folder = os.path.join(folder_path, category)
-        normalized_file_name = normalize(normalized_file_name)  # Перейменування
-        new_file_path = os.path.join(category_folder, normalized_file_name + file_extension)
+        file_name_without_extension = os.path.splitext(os.path.basename(file_path))[0]
+
+        new_file_path = os.path.join(category_folder, f"{file_name_without_extension}{file_extension}")
         os.makedirs(category_folder, exist_ok=True)
         shutil.move(file_path, new_file_path)
 
+    # Виводимо результат
+    print(f"File: {file_name_without_extension} | Category: {category}")
+    
 
 def process_folder(folder_path):
 
     for root, dirs, files in os.walk(folder_path, topdown=False):
         for file in files:
             file_path = os.path.join(root, file)
-            normalized_file_name = normalize(file)
-            process_file(folder_path, file_path, normalized_file_name)
+            process_file(folder_path, file_path)
 
         # видаляємо порожні папки
         for dir_name in dirs:
