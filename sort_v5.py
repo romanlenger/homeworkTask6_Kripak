@@ -11,11 +11,7 @@ def normalize(string):
         'є': 'ie', 'ж': 'zh', 'з': 'z', 'и': 'y', 'і': 'i', 'ї': 'i', 'й': 'i',
         'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n', 'о': 'o', 'п': 'p', 'р': 'r',
         'с': 's', 'т': 't', 'у': 'u', 'ф': 'f', 'х': 'kh', 'ц': 'ts', 'ч': 'ch',
-        'ш': 'sh', 'щ': 'shch', 'ь': '', 'ю': 'iu', 'я': 'ia',
-        '@': '_at_', '#': '_hash_', '$': '_dollar_', '%': '_percent_', '&': '_and_',
-        '*': '_star_', '!': '_exclamation_', '?': '_question_', '+': '_plus_', '=': '_equal_',
-        ':': '_colon_', ';': '_semicolon_', ',': '_comma_', '.': '_dot_', '|': '_pipe_',
-        '/': '_slash_', '\\': '_backslash_', '<': '_less_', '>': '_greater_'
+        'ш': 'sh', 'щ': 'shch', 'ь': '', 'ю': 'iu', 'я': 'ia'
     }
 
     translit_string = ''
