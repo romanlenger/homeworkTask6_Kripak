@@ -32,11 +32,10 @@ def normalize(string):
 
 
 def process_archive(file_path, sorting_folder):
-    # отримуємо ім'я архіву без розширення
-    archive_name = os.path.splitext(os.path.basename(file_path))[0]
-
-    # створюємо папку для архіву у папці, яку сортуємо
-    archive_folder = os.path.join(sorting_folder, archive_name)
+    archive_name, file_extension = os.path.splitext(os.path.basename(file_path))
+    normalized_archive_name = normalize(archive_name)
+    
+    archive_folder = os.path.join(sorting_folder, normalized_archive_name)
 
     try:
         os.makedirs(archive_folder)
@@ -49,22 +48,17 @@ def process_archive(file_path, sorting_folder):
     except zipfile.BadZipFile:
         pass
 
-    # Оновлюємо категорію та шлях файлу
     category = os.path.relpath(archive_folder, sorting_folder)
-    normalized_archive_name = normalize(archive_name)
     new_archive_path = os.path.join(sorting_folder, "archives", normalized_archive_name)
 
-    # Перейменовуємо та переміщуємо архів
     shutil.move(archive_folder, new_archive_path)
 
-    # повертаємо створену папку для архіву
     return new_archive_path
 
 
 def process_file(folder_path, file_path):
     _, file_extension = os.path.splitext(file_path)
 
-    # Визначаємо категорію за розширенням
     category = None
     if file_extension[1:].lower() in ('jpeg', 'png', 'jpg', 'svg'):
         category = 'images'
@@ -76,34 +70,28 @@ def process_file(folder_path, file_path):
         category = 'audio'
     elif file_extension[1:].lower() in ('zip', 'gz', 'tar'):
         category = 'archives'
-        # застосовуємо функцію для розпакування архіву і отримання шляху до створеної папки
         archive_folder = process_archive(file_path, folder_path)
-        # оновлюємо категорію та шлях файлу
         category = os.path.relpath(archive_folder, folder_path)
     else:
         category = 'others'
 
     if os.path.exists(file_path) and category is not None:
-        # Перейменовуємо та переміщуємо файл
         category_folder = os.path.join(folder_path, category)
-        file_name_without_extension = os.path.splitext(os.path.basename(file_path))[0]
+        file_name_without_extension, _ = os.path.splitext(os.path.basename(file_path))
 
-        new_file_path = os.path.join(category_folder, f"{file_name_without_extension}{file_extension}")
+        new_file_path = os.path.join(category_folder, f"{normalize(file_name_without_extension)}{file_extension}")
         os.makedirs(category_folder, exist_ok=True)
         shutil.move(file_path, new_file_path)
 
-    # Виводимо результат
-    print(f"File: {file_name_without_extension} | Category: {category}")
+    print(f"File: {normalize(file_name_without_extension)} | Category: {category}")
     
 
 def process_folder(folder_path):
-
     for root, dirs, files in os.walk(folder_path, topdown=False):
         for file in files:
             file_path = os.path.join(root, file)
             process_file(folder_path, file_path)
 
-        # видаляємо порожні папки
         for dir_name in dirs:
             dir_path = os.path.join(root, dir_name)
             if not os.listdir(dir_path):
