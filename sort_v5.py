@@ -5,7 +5,7 @@ import shutil
 import sys
 
 
-def normalize(string):
+def normalize(string, orig_case=True):
     translit_mapping = {
         'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'ґ': 'g', 'д': 'd', 'е': 'e',
         'є': 'ie', 'ж': 'zh', 'з': 'z', 'и': 'y', 'і': 'i', 'ї': 'i', 'й': 'i',
@@ -18,10 +18,13 @@ def normalize(string):
     prev_char_is_underscore = False
     for char in string:
         if char.lower() in translit_mapping:
-            translit_string += translit_mapping[char.lower()]
+            replacement = translit_mapping[char.lower()]
+            if char.isupper() and orig_case:
+                replacement = replacement.upper()
+            translit_string += replacement
             prev_char_is_underscore = False
         elif re.match(r'[a-zA-Z0-9]', char):
-            translit_string += char.lower()
+            translit_string += char if orig_case else char.lower()
             prev_char_is_underscore = False
         else:
             if not prev_char_is_underscore:
